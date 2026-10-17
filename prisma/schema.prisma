@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Issue {
+  id          String     @id @default(cuid())
+  title       String
+  category    String
+  priority    String     @default("normal")
+  status      String     @default("new")
+  lat         Float
+  lng         Float
+  address     String
+  confirms    Int        @default(1)
+  escalations Int        @default(0)
+  photoUrl    String?
+  department  String?
+  resolvedAt  DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  reports     Report[]
+  logs        AgentLog[]
+}
+
+model Report {
+  id          String   @id @default(cuid())
+  issueId     String
+  issue       Issue    @relation(fields: [issueId], references: [id])
+  lat         Float
+  lng         Float
+  photoUrl    String?
+  comment     String?
+  authorPhone String?
+  createdAt   DateTime @default(now())
+}
+
+model AgentLog {
+  id        String   @id @default(cuid())
+  issueId   String
+  issue     Issue    @relation(fields: [issueId], references: [id])
+  action    String
+  details   String
+  createdAt DateTime @default(now())
+}
+
+model Photo {
+  id        String   @id @default(cuid())
+  issueId   String   @unique
+  mime      String
+  data      String
+  createdAt DateTime @default(now())
+}
